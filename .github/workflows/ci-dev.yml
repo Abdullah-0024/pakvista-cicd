@@ -18,7 +18,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: "24"
 
       - name: Install Dependencies
         run: npm install
@@ -38,22 +38,12 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build Docker images (no push)
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./Dockerfile
-          push: false
-          tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/pakvista:dev-latest
-            ${{ secrets.DOCKERHUB_USERNAME }}/pakvista:dev-${{ github.sha }}
+      - name: Build Docker Image
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/pakvista:dev-latest .
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/pakvista:dev-${{ github.sha }} .
 
-      - name: Push Docker images
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./Dockerfile
-          push: true
-          tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/pakvista:dev-latest
-            ${{ secrets.DOCKERHUB_USERNAME }}/pakvista:dev-${{ github.sha }}
+      - name: Push Docker Images
+        run: |
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/pakvista:dev-latest
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/pakvista:dev-${{ github.sha }}
